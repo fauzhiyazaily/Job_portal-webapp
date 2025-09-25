@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - JobPortal{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="mb-4">Dashboard</h1>
+            <p>Welcome, <strong>{{ current_user.username }}</strong>! ({{ current_user.user_type|title }})</p>
+
+            {% if user_type == 'employer' %}
+                <!-- Employer Dashboard -->
+                <div class="dashboard-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3>Your Job Postings</h3>
+                        <a href="{{ url_for('main.post_job') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Post New Job
+                        </a>
+                    </div>
+                    
+                    {% if jobs %}
+                        <div class="table-responsive mt-3">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Location</th>
+                                        <th>Type</th>
+                                        <th>Applications</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for job in jobs %}
+                                    <tr>
+                                        <td>{{ job.title }}</td>
+                                        <td>{{ job.location }}</td>
+                                        <td>{{ job.job_type.replace('_', ' ').title() }}</td>
+                                        <td>{{ job.applications|length }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if job.is_active else 'secondary' }}">
+                                                {{ 'Active' if job.is_active else 'Inactive' }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('main.job_detail', job_id=job.id) }}" class="btn btn-sm btn-outline-primary">
+                                                View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted mt-3">You haven't posted any jobs yet.</p>
+                    {% endif %}
+                </div>
+                
+            {% else %}
+                <!-- Job Seeker Dashboard -->
+                <div class="dashboard-card">
+                    <h3>Your Applications</h3>
+                    
+                    {% if applications %}
+                        <div class="table-responsive mt-3">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Job Title</th>
+                                        <th>Company</th>
+                                        <th>Applied Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for application in applications %}
+                                    <tr>
+                                        <td>{{ application.job.title }}</td>
+                                        <td>{{ application.job.employer.username }}</td>
+                                        <td>{{ application.applied_at.strftime('%Y-%m-%d') }}</td>
+                                        <td>
+                                            <span class="application-status status-{{ application.status }}">
+                                                {{ application.status.title() }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('main.job_detail', job_id=application.job.id) }}" class="btn btn-sm btn-outline-primary">
+                                                View Job
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted mt-3">You haven't applied to any jobs yet.</p>
+                        <a href="{{ url_for('main.jobs') }}" class="btn btn-primary mt-2">Browse Jobs</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

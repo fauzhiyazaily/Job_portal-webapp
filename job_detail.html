@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}{{ job.title }} - JobPortal{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="job-detail">
+                <h1 class="mb-3">{{ job.title }}</h1>
+                <div class="d-flex gap-3 mb-4">
+                    <span class="badge bg-primary">{{ job.job_type.replace('_', ' ').title() }}</span>
+                    <span class="text-muted"><i class="fas fa-map-marker-alt"></i> {{ job.location }}</span>
+                    <span class="text-muted"><i class="fas fa-dollar-sign"></i> {{ job.salary or 'Negotiable' }}</span>
+                </div>
+                
+                <h4>Job Description</h4>
+                <p class="mb-4">{{ job.description }}</p>
+                
+                <h4>Requirements</h4>
+                <p>{{ job.requirements }}</p>
+                
+                <div class="mt-4">
+                    <h5>About the Employer</h5>
+                    <p><strong>Company:</strong> {{ job.employer.username }}</p>
+                    <p><strong>Posted:</strong> {{ job.created_at.strftime('%B %d, %Y') }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="form-container">
+                {% if current_user.is_authenticated %}
+                    {% if current_user.user_type == 'job_seeker' %}
+                        <h4>Apply for this Job</h4>
+                        <form method="POST">
+                            {{ form.hidden_tag() }}
+                            <div class="mb-3">
+                                {{ form.cover_letter.label(class="form-label") }}
+                                {{ form.cover_letter(class="form-control", rows=6, placeholder="Write your cover letter here...") }}
+                                {% for error in form.cover_letter.errors %}
+                                    <span class="text-danger">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {{ form.submit(class="btn btn-primary w-100") }}
+                        </form>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <h5>Employer View</h5>
+                            <p class="mb-2">This is your job posting.</p>
+                            <p class="mb-0"><strong>Applications:</strong> {{ job.applications|length }}</p>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="text-center">
+                        <h4>Interested in this job?</h4>
+                        <p>Sign in to apply for this position</p>
+                        <a href="{{ url_for('main.login') }}" class="btn btn-primary w-100 mb-2">Sign In</a>
+                        <a href="{{ url_for('main.register') }}" class="btn btn-outline-primary w-100">Register</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
