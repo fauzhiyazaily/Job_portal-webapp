@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=your-production-secret-key
+    volumes:
+      - ./instance:/app/instance
+    restart: unless-stopped
+
+  # Optional: Add PostgreSQL instead of SQLite
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=jobportal
+      - POSTGRES_USER=webuser
+      - POSTGRES_PASSWORD=password123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
